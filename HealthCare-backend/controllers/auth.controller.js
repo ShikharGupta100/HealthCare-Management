@@ -1,6 +1,7 @@
 
 const User = require("../models/User.model")
 const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
 
 
 const registerUser = async(req,res)=>{
@@ -43,4 +44,58 @@ const registerUser = async(req,res)=>{
     }
 
 }
-module.exports = {registerUser}
+const loginUser = async(req,res)=>{
+    try{
+        const {email,password} = req.body
+        const isExists =await User.findOne({email})
+        if(!isExists){
+            return res.status(404).json({
+                message:"User Not exists"
+            })
+        }
+
+        const isPassword = await bcrypt.compare(password,isExists.password)
+        if(!isPassword){
+            return res.status(401).json({
+                message:"Password wrong"
+            })
+        }
+
+        const accessToken = jwt.sign({
+            id:isExists._id,
+            role:isExists.role
+        },
+        process.env.ACCESS_TOKEN_SECRET,
+        {expiresIn:"15m"}
+    )
+
+    const refreshToken = jwt.sign({
+        id:isExists._id,
+        role:isExists.role
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    {expiresIn:"7d"}
+)
+    res.status(200).json({
+        success:true,
+        accessToken,
+        refreshToken,
+        user:{
+            name:isExists.name,
+            _id:isExists._id,
+            email:isExists.email,
+            role:isExists.role
+        }
+
+    })
+
+
+    }catch(err){
+        res.status(500).json({
+            message:err.message
+        })
+    }
+
+
+}
+module.exports = {registerUser,loginUser}
