@@ -2,21 +2,25 @@ const express = require("express")
 const dotenv = require("dotenv")
 const cors = require("cors")
 const connectToDB = require("./config/db")
+const cookieParser=require("cookie-parser")
 
 dotenv.config()
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 8000
 
 const app = express()
 connectToDB()
 
 app.use(express.json())
 app.use(cors())
+app.use(cookieParser())
+
 
 app.get("/",(req,res)=>{
     res.send("App is running")
 })
 
 app.use("/api/auth",require("./routes/auth.routes"))
+app.use("/api/doctors",require("./routes/doctor.routes"))
 
 
 app.listen(PORT,()=>{
