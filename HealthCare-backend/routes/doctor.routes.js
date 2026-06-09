@@ -10,4 +10,4 @@ router.get("/",getAllDoctors)
 router.get("/:id",getDoctorById)
 
 
-module.exports =router
+module.exports = router
