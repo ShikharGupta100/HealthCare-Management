@@ -72,12 +72,7 @@ const getMyAppointments = async(req,res)=>{
     }
 }
 
-// get appointment id from req.params
-// find appointment by id — return 404 if not found
-// check if status is already "cancelled" — return 400 if so
-// update appointment status to "cancelled"
-// update slot — set isBooked to false (free the slot)
-// return 200 with updated appointment
+
 const cancelAppointment=async(req,res)=>{
     try{
         const {appointmentid }= req.params
@@ -114,4 +109,77 @@ const cancelAppointment=async(req,res)=>{
     }
 
 }
-module.exports = {bookAppointment,getMyAppointments,cancelAppointment}
+
+
+const completeAppointment = async(req,res)=>{
+    try{
+        const {appointmentid} = req.params
+        const appointment = await Appointment.findById(appointmentid)
+        if(!appointment){
+            return res.status(404).json({
+                message:"Appointment not found"
+            })
+        }
+        if(appointment.status === "completed"){
+            return res.status(400).json({
+                message:"Appointment completed"
+            })
+        }
+        await Appointment.findByIdAndUpdate(appointmentid,{
+            status:"completed"
+        })
+        return res.status(200).json({
+            message:"Appointment Completed"
+        })
+    }catch(err){
+        return res.status(400).json({
+            message:err.message
+        })
+    }
+
+}
+
+
+const rescheduleAppointment = async(req,res)=>{
+    try{
+        const {appointmentid} = req.params
+        const {newSlotId} = req.body
+        const appointment = await Appointment.findById(appointmentid)
+        if(!appointment){
+            return res.status(404).json({
+                message:"Appointment not found"
+            })
+        }
+        if(appointment.status === "completed" || appointment.status === "cancelled"){
+            return res.status(400).json({
+                message:"Appointment is either completed or cancelled"
+            })
+        }
+        const slot = await Slot.findById(newSlotId)
+        if(!slot){
+            return res.status(404).json({
+                message:"Slot not found"
+            })
+        }
+        if(slot.isBooked){
+            return res.status(400).json({
+                message:"Slot is booked"
+            })
+        }
+        await Slot.findByIdAndUpdate(appointment.slotId,{isBooked:false})
+        await Slot.findByIdAndUpdate(newSlotId,{isBooked:true})
+    
+        await Appointment.findByIdAndUpdate(appointmentid,{
+            slotId:newSlotId
+        })
+        return res.status(200).json({
+            message:"Appointment Updated"
+        })
+    }catch(err){
+        return res.status(400).json({
+            message:err.message
+        })
+    }
+
+}
+module.exports = {bookAppointment,getMyAppointments,cancelAppointment,completeAppointment,rescheduleAppointment}
