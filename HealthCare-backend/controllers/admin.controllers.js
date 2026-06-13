@@ -1,10 +1,11 @@
 
 const User = require("../models/User.model")
 const Doctor = require("../models/Doctor.models")
+const Appointment = require("../models/Appointment.models")
 
 const getAllUsers = async(req,res)=>{
     try{
-        const users = await User.find()
+        const users = await User.find().select("-password")
         return res.status(200).json({
             message:"All users",
             users:users
@@ -28,7 +29,7 @@ const approveDoctor = async(req,res)=>{
                 message:"Doctor Not found"
             })
         }
-        const updatedDoctor = await Doctor.findByIdAndUpdate(doctorId,{isApproved:true},{new:true})
+        const updatedDoctor = await Doctor.findByIdAndUpdate(doctorId,{isApproved:true},{new:true}).select("-password")
     
         return res.status(200).json({
             message:"Doctor updated",
@@ -41,10 +42,6 @@ const approveDoctor = async(req,res)=>{
     }
 }
 
-// get userId from req.params
-// find user by id — return 404 if not found
-// update user — set isActive to false
-// return 200 with updated user
 
 const deactivateUser = async(req,res)=>{
     try{
@@ -69,4 +66,28 @@ const deactivateUser = async(req,res)=>{
     }
 }
 
-module.exports = {getAllUsers,approveDoctor,deactivateUser}
+
+
+const getStats = async(req,res)=>{
+
+    try{
+        const totalUsers = await User.countDocuments()
+        const totalDoctors = await Doctor.countDocuments()
+        const totalAppointments = await Appointment.countDocuments()
+
+        return res.status(200).json({
+            message:"Total members",
+            totalUsers:totalUsers,
+            totalDoctors:totalDoctors,
+            totalAppointments:totalAppointments
+        })
+
+    }catch(err){
+        return res.status(500).json({
+            message:err.message
+        })
+    }
+
+}
+
+module.exports = {getAllUsers,approveDoctor,deactivateUser,getStats}

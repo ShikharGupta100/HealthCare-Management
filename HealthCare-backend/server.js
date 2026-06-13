@@ -24,6 +24,7 @@ app.use("/api/doctors",require("./routes/doctor.routes"))
 app.use("/api/doctors",require("./routes/slot.routes"))
 app.use("/api/appointments",require("./routes/appointment.routes"))
 app.use("/api/prescriptions",require("./routes/prescription.routes"))
+app.use("/api/admin",require("./routes/admin.routes"))
 
 
 app.listen(PORT,()=>{
