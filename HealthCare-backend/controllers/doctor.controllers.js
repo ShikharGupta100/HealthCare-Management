@@ -1,10 +1,18 @@
 const Doctor = require("../models/Doctor.models")
 const User= require("../models/User.model")
 
+// after extracting req.body fields
+// check if req.file exists
+// if yes, get the uploaded image URL from req.file.path
+// save it as profilePhoto field when creating doctor
 const registerDoctorProfile = async(req,res)=>{
     try{
         const userId = req.user.id
         const {specialization, qualification, experience, consultationFee, availableDays } = req.body
+        let profilePhoto = ""
+        if(req.file){
+            profilePhoto = req.file.path
+        }
     
         const doctorProfile = await Doctor.findOne({userId})
         if(doctorProfile){
@@ -19,7 +27,8 @@ const registerDoctorProfile = async(req,res)=>{
              qualification,
               experience,
                consultationFee,
-                availableDays
+                availableDays,
+                profilePhoto:profilePhoto
     
         })
     

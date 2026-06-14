@@ -30,6 +30,10 @@ const doctorSchema = new mongoose.Schema({
     rating:{
         type:Number,
         default:0
+    },
+    profilePhoto:{
+        type:String,
+        default:""
     }
 },{timestamps:true}
 )

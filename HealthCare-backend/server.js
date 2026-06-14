@@ -5,6 +5,7 @@ const connectToDB = require("./config/db")
 const cookieParser=require("cookie-parser")
 
 dotenv.config()
+require("./jobs/reminderCron")
 const PORT = process.env.PORT || 8000
 
 const app = express()
