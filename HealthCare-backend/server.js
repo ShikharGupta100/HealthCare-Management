@@ -3,6 +3,7 @@ const dotenv = require("dotenv")
 const cors = require("cors")
 const connectToDB = require("./config/db")
 const cookieParser=require("cookie-parser")
+const errorHandler = require("./middlewares/error.middlewares")
 
 dotenv.config()
 require("./jobs/reminderCron")
@@ -26,8 +27,9 @@ app.use("/api/doctors",require("./routes/slot.routes"))
 app.use("/api/appointments",require("./routes/appointment.routes"))
 app.use("/api/prescriptions",require("./routes/prescription.routes"))
 app.use("/api/admin",require("./routes/admin.routes"))
+app.use("/api/ai",require("./routes/ai.routes"))
 
-
+app.use(errorHandler)
 app.listen(PORT,()=>{
     console.log(`Server running on port ${PORT}`)
 })
