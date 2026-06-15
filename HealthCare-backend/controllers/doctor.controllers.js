@@ -1,10 +1,7 @@
 const Doctor = require("../models/Doctor.models")
 const User= require("../models/User.model")
 
-// after extracting req.body fields
-// check if req.file exists
-// if yes, get the uploaded image URL from req.file.path
-// save it as profilePhoto field when creating doctor
+
 const registerDoctorProfile = async(req,res)=>{
     try{
         const userId = req.user.id
@@ -53,6 +50,9 @@ const getAllDoctors = async(req,res)=>{
         if(req.query.specialization){
             filter.specialization = req.query.specialization
         }
+        if(req.query.city){
+        filter.city = req.query.city
+        }
         const allDoctors= await Doctor.find(
             filter
         ).populate(
@@ -94,5 +94,38 @@ const getDoctorById = async(req,res)=>{
     }
 }
 
+const rateDoctor = async(req,res)=>{
+    try{
+        const {doctorId} = req.params
+        const {rating} = req.body
+        const doctor = await Doctor.findById(doctorId)
+            if(!doctor){
+                return res.status(404).json({
+                    message:"Doctor Not Found"
+                })
+            }
+            if(rating < 1 || rating > 5){
+                return res.status(400).json({
+                    message:"Rating must be between 1 and 5"
+                })
+            }
+            const newRating = (doctor.rating * doctor.totalRatings + rating) / (doctor.totalRatings + 1)
+            const updateDoctor = await Doctor.findByIdAndUpdate(
+                doctorId,
+                {rating:newRating,
+                    totalRatings:doctor.totalRatings+1
+                }
+            ,{new:true})
+            return res.status(200).json({
+                message:"Updated Doctor",
+                updateDoctor:updateDoctor
+            })
+            }catch(err){
+                return res.status(500).json({
+                    message:err.message
+                })
+            }
 
-module.exports = {registerDoctorProfile,getAllDoctors,getDoctorById}
+    }
+
+module.exports = {registerDoctorProfile,getAllDoctors,getDoctorById,rateDoctor}

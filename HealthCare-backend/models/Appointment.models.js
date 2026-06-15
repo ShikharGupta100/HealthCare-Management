@@ -28,8 +28,16 @@ const appointmentSchema = new mongoose.Schema({
     appointmentDate:{
         type:Date,
         required:true
+    },
+    paymentStatus:{
+        type:String,
+        enum:["pending", "paid", "failed"],
+        default:"pending"
+    },
+    paymentId:{
+        type:String,
+        default:""
     }
-
 },{timestamps:true})
 
 module.exports = mongoose.model("Appointment",appointmentSchema)

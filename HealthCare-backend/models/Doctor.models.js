@@ -27,11 +27,19 @@ const doctorSchema = new mongoose.Schema({
         type:Boolean,
         default:false
     },
+    profilePhoto:{
+        type:String,
+        default:""
+    },
     rating:{
         type:Number,
         default:0
     },
-    profilePhoto:{
+    totalRatings:{
+        type:Number,
+        default:0
+    },
+    city:{
         type:String,
         default:""
     }
