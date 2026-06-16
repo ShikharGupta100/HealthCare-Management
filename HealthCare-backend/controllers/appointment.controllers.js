@@ -182,4 +182,22 @@ const rescheduleAppointment = async(req,res)=>{
     }
 
 }
-module.exports = {bookAppointment,getMyAppointments,cancelAppointment,completeAppointment,rescheduleAppointment}
+const getDoctorAppointments = async(req, res) => {
+    try {
+        const doctor = await Doctor.findOne({ userId: req.user.id })
+        if(!doctor){
+            return res.status(404).json({ message: "Doctor not found" })
+        }
+        const appointments = await Appointment.find({ doctorId: doctor._id })
+            .populate("patientId", "name email")
+            .populate("slotId", "date startTime endTime")
+
+        return res.status(200).json({
+            message: "Doctor appointments",
+            appointments
+        })
+    } catch(err) {
+        return res.status(500).json({ message: err.message })
+    }
+}
+module.exports = {bookAppointment,getMyAppointments,cancelAppointment,completeAppointment,rescheduleAppointment,getDoctorAppointments}
