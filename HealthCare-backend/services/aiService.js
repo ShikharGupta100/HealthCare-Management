@@ -70,19 +70,35 @@ const generateHealthPlan = async(patientProfile, diagnosis) => {
         messages: [
             {
                 role: "system",
-                content: "You are a medical AI assistant. Respond only in JSON format, no extra text."
+                content: "You are a medical AI assistant. Respond only in JSON format, no extra text, no markdown."
             },
             {
                 role: "user",
                 content: `Generate a personalized day-by-day recovery plan for this patient.
                 Patient Profile: ${JSON.stringify(patientProfile)}
                 Diagnosis: ${diagnosis}
-                Format: { "recoveryPlan": [], "dietRecommendations": [], "exerciseSuggestions": [], "medicationReminders": [] }`
+                
+                You MUST return exactly this JSON structure:
+                {
+                    "recoveryPlan": [
+                        { "day": 1, "description": "activity description here" },
+                        { "day": 2, "description": "activity description here" }
+                    ],
+                    "dietRecommendations": [
+                        { "foodType": "food name", "description": "description here" }
+                    ],
+                    "exerciseSuggestions": [
+                        { "exerciseType": "exercise name", "description": "description here" }
+                    ],
+                    "medicationReminders": [
+                        { "medication": "medicine name", "dosage": "dosage here", "description": "description here" }
+                    ]
+                }`
             }
         ]
     })
 
-     const text = response.choices[0].message.content
+    const text = response.choices[0].message.content
     const clean = text.replace(/```json|```/g, "").trim()
     return JSON.parse(clean)
 }

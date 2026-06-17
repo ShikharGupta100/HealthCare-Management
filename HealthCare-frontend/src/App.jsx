@@ -6,12 +6,17 @@ import PatientDashboard from "./pages/PatientDashboard"
 import DoctorProfile from "./pages/DoctorProfile"
 import DoctorDashboard from "./pages/DoctorDashboard"
 import AdminDashboard from "./pages/AdminDashboard"
+import SymptomChecker from "./pages/SymptomChecker"
+import HealthPlan from "./pages/HealthPlan"
+import Home from "./pages/Home"
+import MyPrescriptions from "./pages/MyPrescriptions"
+import MyAppointments from "./pages/MyAppointments"
 
 function App() {
   return (
     <BrowserRouter>
     <Routes>
-      <Route path="/" element={<div>Home</div>}/>
+      <Route path="/" element={<Home/>}/>
       <Route path="/login" element={<Login/>}/>
       <Route path="/register" element={<Register/>}/>
       <Route path="/patient/dashboard" element={<ProtectedRoute>
@@ -32,8 +37,28 @@ function App() {
             <DoctorProfile/>
           </ProtectedRoute>
         }>
-
         </Route>
+        <Route path="/symptom-checker" element={
+          <ProtectedRoute>
+            <SymptomChecker/>
+          </ProtectedRoute>
+        }>
+        </Route>
+        <Route path="/health-plan" element={
+          <ProtectedRoute>
+            <HealthPlan/>
+          </ProtectedRoute>
+        }>
+        </Route>
+        <Route path="/my-prescriptions" element={
+          <ProtectedRoute>
+            <MyPrescriptions/>
+          </ProtectedRoute>
+        }>
+        </Route>
+        <Route path="/my-appointments" element={<ProtectedRoute>
+          <MyAppointments/>
+        </ProtectedRoute>} />
     </Routes>
     </BrowserRouter>
   )

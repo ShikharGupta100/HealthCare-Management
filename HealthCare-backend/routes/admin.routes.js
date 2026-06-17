@@ -7,7 +7,7 @@ const role = require("../middlewares/role.middlewares")
 
 router.get("/users",auth,role("admin"),getAllUsers)
 router.put("/doctors/:doctorId/approve",auth,role("admin"),approveDoctor)
-router.delete("/users/:userId",auth,role("admin"),deactivateUser)
+router.patch("/users/:userId",auth,role("admin"),deactivateUser)
 router.get("/stats", auth,role("admin"),getStats)
 
 module.exports = router

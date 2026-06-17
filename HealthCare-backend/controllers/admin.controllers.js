@@ -23,13 +23,15 @@ const getAllUsers = async(req,res)=>{
 const approveDoctor = async(req,res)=>{
     try{
         const {doctorId} = req.params
-        const doctor = await Doctor.findById(doctorId)
+        const doctor = await Doctor.findOne({userId:doctorId})
         if(!doctor){
             return res.status(404).json({
                 message:"Doctor Not found"
             })
         }
-        const updatedDoctor = await Doctor.findByIdAndUpdate(doctorId,{isApproved:true},{new:true}).select("-password")
+        const updatedDoctor = await Doctor.findByIdAndUpdate(doctorId,
+            {isApproved:true},
+            {new:true}).select("-password")
     
         return res.status(200).json({
             message:"Doctor updated",
@@ -52,7 +54,9 @@ const deactivateUser = async(req,res)=>{
                 message:"User Not Found"
             })
         }
-        const updatedUser = await User.findByIdAndUpdate(userId,{isActive:false},{new:true})
+        const updatedUser = await User.findByIdAndUpdate(userId,
+             { isActive: !user.isActive },
+            {new:true})
         return res.status(200).json({
             message:"User Updated",
             updatedUser:updatedUser
