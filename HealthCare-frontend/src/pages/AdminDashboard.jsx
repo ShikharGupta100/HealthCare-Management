@@ -9,6 +9,7 @@ const AdminDashboard = () => {
     const [stats, setStats] = useState(null)
     const [loading, setLoading] = useState(false)
     const [search, setSearch] = useState("")
+    // const [approvedDoctors, setApprovedDoctors] = useState([])
     const navigate = useNavigate()
     const dispatch = useDispatch()
 
@@ -49,6 +50,7 @@ const AdminDashboard = () => {
     try {
         await api.put(`/admin/doctors/${doctorId}/approve`)
         alert("Doctor approved!")
+        // setApprovedDoctors([...approvedDoctors, doctorId])
         const usersRes = await api.get("/admin/users")
         setUsers(usersRes.data.users)
     } catch (err) {
@@ -56,16 +58,35 @@ const AdminDashboard = () => {
     }
 }
 
+// const handleDeactivate = async (userId) => {
+//     try {
+//         await api.patch(`/admin/users/${userId}`) 
+//         alert("User updated!")
+//         const usersRes = await api.get("/admin/users")
+//         setUsers(usersRes.data.users)
+//     } catch (err) {
+//         alert(err.response?.data?.message || "Failed")
+//     }
+// }
 const handleDeactivate = async (userId) => {
     try {
-        await api.patch(`/admin/users/${userId}/deactivate`)  // ← patch, new URL
-        alert("User updated!")
-        const usersRes = await api.get("/admin/users")
-        setUsers(usersRes.data.users)
+        const res = await api.patch(`/admin/users/${userId}`);
+        setUsers((prevUsers) =>
+            prevUsers.map((user) =>
+                user._id === userId
+                    ? { ...user, isActive: res.data.updatedUser.isActive }
+                    : user
+            )
+        );
+        alert(
+            res.data.updatedUser.isActive
+                ? "User Activated!"
+                : "User Deactivated!"
+        );
     } catch (err) {
-        alert(err.response?.data?.message || "Failed")
+        alert(err.response?.data?.message || "Failed");
     }
-}
+};
 
     const handleLogout = () => {
         dispatch(logout())
@@ -184,16 +205,46 @@ const handleDeactivate = async (userId) => {
                                             </td>
                                             <td style={{ padding: "14px 16px" }}>
                                                 <div style={{ display: "flex", gap: "8px" }}>
-                                                    {user.role === "doctor" && (
+                                                    {user.role === "doctor" && !user.isApproved && (
                                                         <button onClick={() => handleApprove(user._id)}
                                                             style={{ padding: "6px 14px", background: "#16A34A", color: "white", border: "none", borderRadius: "999px", cursor: "pointer", fontSize: "12px", fontWeight: "600" }}>
                                                             Approve
                                                         </button>
                                                     )}
-                                                    <button onClick={() => handleDeactivate(user._id)}
+                                                    {/* <button onClick={() => handleDeactivate(user._id)}
                                                         style={{ padding: "6px 14px", background: "white", color: "#EF4444", border: "1px solid #EF4444", borderRadius: "999px", cursor: "pointer", fontSize: "12px", fontWeight: "600" }}>
                                                         Deactivate
-                                                    </button>
+                                                    </button> */}
+                                                    {/* <button
+    onClick={() => handleDeactivate(user._id)}
+    style={{
+        padding: "6px 14px",
+        background: user.isActive ? "white" : "#16A34A",
+        color: user.isActive ? "#EF4444" : "white",
+        border: user.isActive ? "1px solid #EF4444" : "none",
+        borderRadius: "999px",
+        cursor: "pointer",
+        fontSize: "12px",
+        fontWeight: "600"
+    }}
+>
+    {user.isActive ? "Deactivate" : "Activate"}
+</button> */}
+<button
+    onClick={() => handleDeactivate(user._id)}
+    style={{
+        padding: "6px 14px",
+        background: user.isActive ? "white" : "#16A34A",
+        color: user.isActive ? "#EF4444" : "white",
+        border: user.isActive ? "1px solid #EF4444" : "none",
+        borderRadius: "999px",
+        cursor: "pointer",
+        fontSize: "12px",
+        fontWeight: "600"
+    }}
+>
+    {user.isActive ? "Deactivate" : "Activate"}
+</button>
                                                 </div>
                                             </td>
                                         </tr>

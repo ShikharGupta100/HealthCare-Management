@@ -3,21 +3,53 @@ const User = require("../models/User.model")
 const Doctor = require("../models/Doctor.models")
 const Appointment = require("../models/Appointment.models")
 
-const getAllUsers = async(req,res)=>{
-    try{
-        const users = await User.find().select("-password")
+// const getAllUsers = async(req,res)=>{
+//     try{
+//         const users = await User.find().select("-password")
+//         return res.status(200).json({
+//             message:"All users",
+//             users:users
+//         })
+
+//     }catch(err){
+//         return res.status(500).json({
+//             message:err.message
+//         })
+
+//     }
+// }
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find().select("-password");
+
+        const usersWithApproval = await Promise.all(
+            users.map(async (user) => {
+
+                if (user.role === "doctor") {
+
+                    const doctor = await Doctor.findOne({ userId: user._id });
+
+                    return {
+                        ...user.toObject(),
+                        isApproved: doctor ? doctor.isApproved : false
+                    };
+                }
+
+                return user.toObject();
+            })
+        );
+
         return res.status(200).json({
-            message:"All users",
-            users:users
-        })
+            message: "All users",
+            users: usersWithApproval
+        });
 
-    }catch(err){
+    } catch (err) {
         return res.status(500).json({
-            message:err.message
-        })
-
+            message: err.message
+        });
     }
-}
+};
 
 
 const approveDoctor = async(req,res)=>{
@@ -29,9 +61,11 @@ const approveDoctor = async(req,res)=>{
                 message:"Doctor Not found"
             })
         }
-        const updatedDoctor = await Doctor.findByIdAndUpdate(doctorId,
-            {isApproved:true},
-            {new:true}).select("-password")
+        doctor.isApproved = true;
+        await doctor.save();
+        // const updatedDoctor = await Doctor.findByIdAndUpdate(doctorId,
+        //     {isApproved:true},
+        //     {new:true}).select("-password")
     
         return res.status(200).json({
             message:"Doctor updated",
@@ -54,12 +88,14 @@ const deactivateUser = async(req,res)=>{
                 message:"User Not Found"
             })
         }
-        const updatedUser = await User.findByIdAndUpdate(userId,
-             { isActive: !user.isActive },
-            {new:true})
+        user.isActive = !user.isActive;
+        await user.save();
+        // const updatedUser = await User.findByIdAndUpdate(userId,
+        //      { isActive: !user.isActive },
+        //     {new:true})
         return res.status(200).json({
             message:"User Updated",
-            updatedUser:updatedUser
+            updatedUser:user
         })
 
     }catch(err){
